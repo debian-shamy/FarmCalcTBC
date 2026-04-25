@@ -28,4 +28,13 @@ main_page: "View detailed recipe breakdown and consolidated Shopping List."
 
 GNU General Public License v3.0
 
+# Release Notes 
+
+v1.1.0: The Persistence & UX Update
+
+[New Feature] Added Browser Local Storage support: Your farming list now survives page refreshes (F5).
+[UX/UI] Implemented color-coded categories (Flasks, Elixirs, Potions, Food) for better visual organization.
+[Bugfix] Fixed JSON serialization error when adding items to the cart (Pandas Series to Dict conversion).
+[Improvement] Optimized UI flow: Item cards now start collapsed for a cleaner look.
+
 FarmCalcTBC is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
