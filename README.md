@@ -6,13 +6,6 @@ FarmCalcTBC: A simple web-based tool to calculate farming materials for TBC 2.4.
 - "Dynamic CSV Database support"
 - "Real-time item and reagent icons"
 - "Automatic quantity stacking and synchronization"
-installation:
-step_1: "git clone https://github.com/debian-shamy/FarmCalcTBC.git"
-step_2: "pip install -r requirements.txt"
-step_3: "streamlit run app.py"
-usage:
-sidebar: "Select category, item, and quantity. Use +5/+10 buttons for quick adds."
-main_page: "View detailed recipe breakdown and consolidated Shopping List."
 
 # DATABASE FORMAT (mats.csv)
 - Tipe: "Item category (Flask, Elixir, etc.)"
