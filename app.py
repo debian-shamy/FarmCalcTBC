@@ -2,15 +2,21 @@
 TBC Farm Calculator
 Description: A web-based tool to calculate materials needed for TBC WoW crafting.
 Author: Debian
+Version: 1.1.0
 License: GNU General Public License v3.0
 """
 
 import streamlit as st
 import pandas as pd
 import os
+import json
+from streamlit_local_storage import LocalStorage
 
 # --- Page Configuration ---
 st.set_page_config(page_title="TBC Farm Calc", page_icon="⚔️", layout="wide")
+
+# --- Local Storage Setup ---
+local_storage = LocalStorage()
 
 # --- Data Logic ---
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,9 +41,6 @@ for _, row in df.dropna(subset=['Icons', 'icons_img']).iterrows():
 # --- Session State Initialization ---
 def init_session_state():
     """Initializes the required session state variables."""
-    if 'cart' not in st.session_state:
-        st.session_state.cart = []
-
     if 'item_qty' not in st.session_state:
         st.session_state.item_qty = 0  
 
@@ -47,12 +50,30 @@ def init_session_state():
     if 'show_error' not in st.session_state:
         st.session_state.show_error = False
 
+    if 'cart' not in st.session_state:
+        # Tenta recuperar dados do Local Storage do navegador
+        saved_cart = local_storage.getItem("tbc_farm_cart")
+        if saved_cart:
+            # O local storage salva como string/JSON, então convertemos de volta
+            try:
+                st.session_state.cart = json.loads(saved_cart)
+            except:
+                st.session_state.cart = []
+        else:
+            st.session_state.cart = []
+
+def sync_to_local_storage():
+    """Saves the current state of the shopping basket in the browser."""
+    cart_json = json.dumps(st.session_state.cart)
+    local_storage.setItem("tbc_farm_cart", cart_json)
+
 init_session_state()
 
 # --- Callback Functions ---
 def clear_cart():
     """Wipes the cart and clears associated widget memory."""
     st.session_state.cart = []
+    local_storage.deleteAll()
     # Clean up widget keys to prevent stale values
     for key in list(st.session_state.keys()):
         if key.startswith("q_cart_"):
@@ -76,7 +97,6 @@ def add_to_cart(name: str, category: str, data: pd.Series):
             new_total = item['qty'] + qty_to_add
             item['qty'] = new_total
             
-            # Sync main page number_input widget
             widget_key = f"q_cart_{name}"
             if widget_key in st.session_state:
                 st.session_state[widget_key] = new_total
@@ -90,12 +110,13 @@ def add_to_cart(name: str, category: str, data: pd.Series):
             'qty': qty_to_add,
             'type': category,
             'desc': data['Desciption'],
-            'data': data,
-            'icon': data['icons_name'] # Main item icon
+            'data': data.to_dict(),
+            'icon': data['icons_name'] 
         })
         
-    st.session_state.item_qty = 0 # Reset sidebar counter
+    st.session_state.item_qty = 0 
     st.session_state.show_success = True
+    sync_to_local_storage()
 
 # --- SIDEBAR: Input Panel ---
 st.sidebar.header("⚒️ Crafting Panel")
@@ -165,8 +186,21 @@ else:
         name = cart_item['name']
         qty = cart_item['qty']
         data = cart_item['data']
+        item_type = cart_item['type']
+
+        # --- Colors ---
+        if item_type == "Flask":
+            prefix = f":orange[**{item_type}:**]"
+        elif item_type == "Elixir":
+            prefix = f":violet[**{item_type}:**]"
+        elif item_type == "Potion":
+            prefix = f":green[**{item_type}:**]"
+        elif item_type == "Food":
+            prefix = f":red[**{item_type}:**]"
+        else:
+            prefix = f"**{item_type}:**"
         
-        with st.expander(f"📦 {qty}x {name}", expanded=True):
+        with st.expander(f"📦 {qty}x {prefix} {name}", expanded=False):
             img_col, info_col, ctrl_col = st.columns([1, 4, 3], vertical_alignment="center")
             
             with img_col:
@@ -183,12 +217,14 @@ else:
                     new_q = st.number_input("Qty", value=qty, min_value=1, step=1, key=f"q_cart_{name}", label_visibility="collapsed")
                     if new_q != qty:
                         st.session_state.cart[idx]['qty'] = new_q
+                        sync_to_local_storage()
                         st.rerun()
                 with d_col:
                     if st.button("🗑️", key=f"del_{name}"):
                         st.session_state.cart.pop(idx)
                         if f"q_cart_{name}" in st.session_state:
                             del st.session_state[f"q_cart_{name}"]
+                        sync_to_local_storage()
                         st.rerun()
 
             st.divider()
