@@ -1,4 +1,4 @@
-# --- ⚔️ TBC Farm Calculator ---
+# ⚔️ TBC Farm Calculator
 FarmCalcTBC: A simple web-based tool to calculate farming materials for TBC 2.4.3.
 
 ## features:
@@ -14,7 +14,7 @@ usage:
 sidebar: "Select category, item, and quantity. Use +5/+10 buttons for quick adds."
 main_page: "View detailed recipe breakdown and consolidated Shopping List."
 
-# --- DATABASE FORMAT (mats.csv) ---
+# DATABASE FORMAT (mats.csv)
 - Tipe: "Item category (Flask, Elixir, etc.)"
 - Name: "Item name"
 - icons_name: "URL for the consumable icon"
