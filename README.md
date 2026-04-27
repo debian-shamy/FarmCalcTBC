@@ -21,17 +21,17 @@ FarmCalcTBC: A simple web-based tool to calculate farming materials for TBC 2.4.
 
 GNU General Public License v3.0
 
+FarmCalcTBC is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+
 # Release Notes 
 
-v1.1.0: The Persistence & UX Update
+### v1.1.0: The Persistence & UX Update
 
 [New Feature] Added Browser Local Storage support: Your farming list now survives page refreshes (F5).
 [UX/UI] Implemented color-coded categories (Flasks, Elixirs, Potions, Food) for better visual organization.
 [Bugfix] Fixed JSON serialization error when adding items to the cart (Pandas Series to Dict conversion).
 [Improvement] Optimized UI flow: Item cards now start collapsed for a cleaner look.
 
-FarmCalcTBC is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
-
-v1.2.0: The Stability & Sync Update
+### v1.2.0: The Stability & Sync Update
 
 [Bugfix] Fixed a Local Storage synchronization issue where deleted items or modified quantities would revert after a page refresh. Implemented Streamlit callbacks (`on_click` and `on_change`) for seamless state management.
