@@ -31,3 +31,10 @@ v1.1.0: The Persistence & UX Update
 [Improvement] Optimized UI flow: Item cards now start collapsed for a cleaner look.
 
 FarmCalcTBC is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+
+v1.2.0: The Stability & Sync Update
+
+[Bugfix] Resolved Streamlit `MediaFileStorageError` on the cloud by sanitizing image URLs and handling empty strings/NaNs from the CSV database.
+[Bugfix] Fixed a Local Storage synchronization issue where deleted items or modified quantities would revert after a page refresh. Implemented Streamlit callbacks (`on_click` and `on_change`) for seamless state management.
+[UX/UI] Removed dynamic quantity values from item expander titles to prevent the UI from auto-closing while users adjust their amounts.
+[UI] Enforced left-alignment for the 'Total Amount' column in the final Shopping List for better readability.
