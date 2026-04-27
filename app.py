@@ -2,7 +2,6 @@
 TBC Farm Calculator
 Description: A web-based tool to calculate materials needed for TBC WoW crafting.
 Author: Debian
-Version: 1.1.0
 License: GNU General Public License v3.0
 """
 
@@ -53,10 +52,12 @@ def init_session_state():
     if 'cart' not in st.session_state:
         # Tenta recuperar dados do Local Storage do navegador
         saved_cart = local_storage.getItem("tbc_farm_cart")
-        if saved_cart:
-            # O local storage salva como string/JSON, então convertemos de volta
+        if saved_cart and saved_cart not in ["undefined", "null", "[]", ""]:
             try:
                 st.session_state.cart = json.loads(saved_cart)
+                # Adicione este loop para pré-preencher as chaves dos widgets
+                for item in st.session_state.cart:
+                    st.session_state[f"q_cart_{item['name']}"] = item['qty']
             except:
                 st.session_state.cart = []
         else:
@@ -116,6 +117,26 @@ def add_to_cart(name: str, category: str, data: pd.Series):
         
     st.session_state.item_qty = 0 
     st.session_state.show_success = True
+    sync_to_local_storage()
+
+def remove_from_cart(idx: int, name: str):
+    """Removes an item from the cart safely using Streamlit callbacks."""
+    # 1. Remove the item from the list
+    st.session_state.cart.pop(idx)
+    
+    # 2. Clears the memory of the digital counter associated with it
+    widget_key = f"q_cart_{name}"
+    if widget_key in st.session_state:
+        del st.session_state[widget_key]
+        
+    # 3. Syncs with your browser straight away
+    sync_to_local_storage()
+
+def update_cart_qty(idx: int, key: str):
+    """Updates the quantity of the item in the basket and synchronises with the browser."""
+    # The new value is already in the session_state via the widget's 'key'
+    new_qty = st.session_state[key]
+    st.session_state.cart[idx]['qty'] = new_qty
     sync_to_local_storage()
 
 # --- SIDEBAR: Input Panel ---
@@ -214,18 +235,25 @@ else:
             with ctrl_col:
                 q_col, d_col = st.columns([2, 1], vertical_alignment="center")
                 with q_col:
-                    new_q = st.number_input("Qty", value=qty, min_value=1, step=1, key=f"q_cart_{name}", label_visibility="collapsed")
-                    if new_q != qty:
-                        st.session_state.cart[idx]['qty'] = new_q
-                        sync_to_local_storage()
-                        st.rerun()
+                    st.number_input(
+                        "Qty", 
+                        value=qty, 
+                        min_value=1, 
+                        step=1, 
+                        key=f"q_cart_{name}", 
+                        label_visibility="collapsed",
+                        on_change=update_cart_qty,
+                        args=(idx, f"q_cart_{name}")
+                    )
+                    
                 with d_col:
-                    if st.button("🗑️", key=f"del_{name}"):
-                        st.session_state.cart.pop(idx)
-                        if f"q_cart_{name}" in st.session_state:
-                            del st.session_state[f"q_cart_{name}"]
-                        sync_to_local_storage()
-                        st.rerun()
+                    # The on_click event calls the function before the page reloads naturally
+                    st.button(
+                        "🗑️", 
+                        key=f"del_{name}_{idx}", 
+                        on_click=remove_from_cart, 
+                        args=(idx, name)
+                    )
 
             st.divider()
 
@@ -265,7 +293,7 @@ else:
                 column_config={
                     "Icon": st.column_config.ImageColumn("", width="small"),
                     "Ingredient": "Material Name",
-                    "Total Amount": st.column_config.NumberColumn("Quantity", format="%d")
+                    "Total Amount": st.column_config.NumberColumn("Quantity", format="%d", alignment="left")
                 },
                 hide_index=True, 
                 use_container_width=True
