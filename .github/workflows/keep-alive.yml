@@ -1,0 +1,25 @@
+name: Get up
+on:
+  schedule:
+  
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+jobs:
+  commit-vazio:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+
+      - name: zero
+        run: |
+          git commit --allow-empty -m "Keep alive: $(date)"
+          git push
