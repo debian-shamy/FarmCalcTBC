@@ -12,7 +12,7 @@ import json
 from streamlit_local_storage import LocalStorage
 
 # --- Page Configuration ---
-st.set_page_config(page_title="TBC Farm Calc", page_icon="⚔️", layout="wide")
+st.set_page_config(page_title="TBC Farm Calc", page_icon="⚔️", layout="centered")
 
 # --- Local Storage Setup ---
 local_storage = LocalStorage()
