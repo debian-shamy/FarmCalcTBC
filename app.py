@@ -276,27 +276,61 @@ else:
                         st.markdown(f"• {r_name}: **{total_req}**")
                         grand_total_mats[r_name] = grand_total_mats.get(r_name, 0) + total_req
 
-    # --- FINAL SHOPPING LIST ---
+   # --- FINAL SHOPPING LIST ---
     st.markdown("---")
     with st.expander("📊 **TOTAL SHOPPING LIST**", expanded=True):
         if grand_total_mats:
+            
+            # Session state initialization
+            if "shopping_state" not in st.session_state:
+                st.session_state["shopping_state"] = {}
+
+            # Data preparation
             sorted_data = []
             for mat in sorted(grand_total_mats.keys()):
+                is_checked = st.session_state["shopping_state"].get(mat, False)
                 sorted_data.append({
+                    "Done": is_checked,
                     "Icon": reagent_icon_map.get(mat, ""),
                     "Ingredient": mat, 
                     "Total Amount": grand_total_mats[mat]
                 })
             
-            st.dataframe(
-                pd.DataFrame(sorted_data),
+            df_shopping = pd.DataFrame(sorted_data)
+
+            # Row styling
+            def strikethrough_row(row):
+                if row["Done"]:
+                    return ['text-decoration: line-through; opacity: 0.4;'] * len(row)
+                return [''] * len(row)
+
+            df_styled = df_shopping.style.apply(strikethrough_row, axis=1)
+            
+            # Render data editor
+            df_edited = st.data_editor(
+                df_styled,
                 column_config={
+                    "Done": st.column_config.CheckboxColumn("Done?", default=False),
                     "Icon": st.column_config.ImageColumn("", width="small"),
-                    "Ingredient": "Material Name",
-                    "Total Amount": st.column_config.NumberColumn("Quantity", format="%d", alignment="left")
+                    "Ingredient": st.column_config.TextColumn("Material Name", disabled=True),
+                    "Total Amount": st.column_config.NumberColumn("Quantity", format="%d", alignment="left", disabled=True)
                 },
                 hide_index=True, 
-                use_container_width=True
+                use_container_width=True,
+                key="shop_list_editor"
             )
+
+            # Sync state and rerun
+            has_changes = False
+            for idx, row in df_edited.iterrows():
+                mat = row["Ingredient"]
+                is_checked = row["Done"]
+                
+                if st.session_state["shopping_state"].get(mat, False) != is_checked:
+                    st.session_state["shopping_state"][mat] = is_checked
+                    has_changes = True
+            
+            if has_changes:
+                st.rerun()
 
 st.markdown("<br><center><small>TBC Farm Calc - Developed for the TBC community</small></center>", unsafe_allow_html=True)
