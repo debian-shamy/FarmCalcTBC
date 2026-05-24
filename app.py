@@ -333,4 +333,4 @@ else:
             if has_changes:
                 st.rerun()
 
-st.markdown("<br><center><small>TBC Farm Calc - Developed for the TBC community</small></center>", unsafe_allow_html=True)
+st.markdown("<br><center><small>TBC Farm Calc 1.3.0 - Developed for the TBC community</small></center>", unsafe_allow_html=True)
