@@ -35,3 +35,7 @@ FarmCalcTBC is free software: you can redistribute it and/or modify it under the
 ### v1.2.0: The Stability & Sync Update
 
 [Bugfix] Fixed a Local Storage synchronization issue where deleted items or modified quantities would revert after a page refresh. Implemented Streamlit callbacks (`on_click` and `on_change`) for seamless state management.
+
+### v1.3.0: The Task Tracking Update
+
+[New Feature] Added a "Done?" checkbox column to the Total Shopping List to interactively track farmed materials.
